@@ -1,0 +1,883 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "openHASP",
+  "description": {
+    "en": "Control openHASP touch screens over MQTT: pages, backlight, buttons and texts.",
+    "fr": "Pilotez vos écrans tactiles openHASP en MQTT : pages, rétroéclairage, boutons et textes.",
+    "de": "Steuere openHASP-Touchdisplays per MQTT: Seiten, Beleuchtung, Tasten und Texte.",
+    "es": "Controle sus pantallas táctiles openHASP por MQTT: páginas, retroiluminación, botones."
+  },
+  "version": "0.0.0",
+  "docker_image": "ghcr.io/prohand/gladys-openhasp:0.0.0",
+  "gladys_version": ">=5.3.0",
+  "cover_image": "https://raw.githubusercontent.com/prohand/gladys-openhasp/main/cover.png",
+  "categories": ["lighting", "protocols"],
+  "keywords": [
+    "openhasp",
+    "hasp",
+    "lanbon l8",
+    "wt32-sc01",
+    "sunton",
+    "esp32",
+    "mqtt",
+    "touch screen",
+    "écran tactile",
+    "switch plate"
+  ],
+  "transports": ["local"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Getting started",
+        "fr": "Pour commencer",
+        "de": "Erste Schritte",
+        "es": "Primeros pasos"
+      },
+      "description": {
+        "en": "openHASP plates talk MQTT. Point your plates and this integration at the same MQTT broker (the one of the Gladys MQTT integration works). Each plate that comes online shows up in the Discovery tab. To control the buttons, sliders and labels of your pages, list them in Screen objects below, or use the Add an object button.",
+        "fr": "Les écrans openHASP parlent MQTT. Reliez vos écrans et cette intégration au même broker MQTT (celui de l'intégration MQTT de Gladys convient). Chaque écran en ligne apparaît dans l'onglet Découverte. Pour piloter les boutons, curseurs et textes de vos pages, listez-les dans Objets d'écran ci-dessous, ou utilisez le bouton Ajouter un objet.",
+        "de": "openHASP-Displays sprechen MQTT. Verbinde deine Displays und diese Integration mit demselben MQTT-Broker (der der Gladys-MQTT-Integration funktioniert). Jedes Display, das online geht, erscheint im Tab Erkennung. Um Tasten, Schieberegler und Texte deiner Seiten zu steuern, trage sie unten unter Bildschirmobjekte ein oder nutze die Schaltfläche Objekt hinzufügen.",
+        "es": "Las pantallas openHASP hablan MQTT. Conecte sus pantallas y esta integración al mismo broker MQTT (sirve el de la integración MQTT de Gladys). Cada pantalla en línea aparece en la pestaña Descubrimiento. Para controlar los botones, deslizadores y textos de sus páginas, indíquelos en Objetos de pantalla más abajo, o use el botón Añadir un objeto."
+      },
+      "links": [
+        {
+          "url": "https://www.openhasp.com/latest/firmware/configuration/mqtt/",
+          "label": {
+            "en": "openHASP MQTT settings",
+            "fr": "Réglages MQTT d'openHASP",
+            "de": "MQTT-Einstellungen von openHASP",
+            "es": "Ajustes MQTT de openHASP"
+          }
+        },
+        {
+          "url": "https://www.openhasp.com/latest/design/objects/",
+          "label": {
+            "en": "openHASP objects",
+            "fr": "Objets openHASP",
+            "de": "openHASP-Objekte",
+            "es": "Objetos openHASP"
+          }
+        }
+      ]
+    },
+    {
+      "key": "mqtt_url",
+      "type": "string",
+      "label": {
+        "en": "MQTT broker address",
+        "fr": "Adresse du broker MQTT",
+        "de": "Adresse des MQTT-Brokers",
+        "es": "Dirección del broker MQTT"
+      },
+      "description": {
+        "en": "The broker your plates use: mqtt://host:1883, mqtts://host:8883 or ws://host:9001.",
+        "fr": "Le broker utilisé par vos écrans : mqtt://hôte:1883, mqtts://hôte:8883 ou ws://hôte:9001.",
+        "de": "Der Broker deiner Displays: mqtt://host:1883, mqtts://host:8883 oder ws://host:9001.",
+        "es": "El broker que usan sus pantallas: mqtt://host:1883, mqtts://host:8883 o ws://host:9001."
+      },
+      "placeholder": {
+        "en": "e.g. mqtt://192.168.1.10:1883",
+        "fr": "ex. mqtt://192.168.1.10:1883",
+        "de": "z. B. mqtt://192.168.1.10:1883",
+        "es": "p. ej. mqtt://192.168.1.10:1883"
+      },
+      "required": true
+    },
+    {
+      "key": "mqtt_username",
+      "type": "string",
+      "label": {
+        "en": "MQTT username",
+        "fr": "Utilisateur MQTT",
+        "de": "MQTT-Benutzername",
+        "es": "Usuario MQTT"
+      },
+      "description": {
+        "en": "Leave empty if the broker accepts anonymous clients.",
+        "fr": "Laissez vide si le broker accepte les clients anonymes.",
+        "de": "Leer lassen, wenn der Broker anonyme Clients zulässt.",
+        "es": "Déjelo vacío si el broker acepta clientes anónimos."
+      },
+      "required": false
+    },
+    {
+      "key": "mqtt_password",
+      "type": "secret",
+      "label": {
+        "en": "MQTT password",
+        "fr": "Mot de passe MQTT",
+        "de": "MQTT-Passwort",
+        "es": "Contraseña MQTT"
+      },
+      "required": false
+    },
+    {
+      "key": "topic_prefix",
+      "type": "string",
+      "label": {
+        "en": "Topic prefix",
+        "fr": "Préfixe des topics",
+        "de": "Topic-Präfix",
+        "es": "Prefijo de los topics"
+      },
+      "description": {
+        "en": "The first level of the openHASP topics. Keep hasp unless you changed it in the firmware.",
+        "fr": "Le premier niveau des topics openHASP. Gardez hasp, sauf si vous l'avez changé dans le firmware.",
+        "de": "Die erste Ebene der openHASP-Topics. Behalte hasp, außer du hast es in der Firmware geändert.",
+        "es": "El primer nivel de los topics openHASP. Deje hasp salvo que lo haya cambiado en el firmware."
+      },
+      "required": false,
+      "default": "hasp"
+    },
+    {
+      "key": "objects",
+      "type": "string",
+      "label": {
+        "en": "Screen objects",
+        "fr": "Objets d'écran",
+        "de": "Bildschirmobjekte",
+        "es": "Objetos de pantalla"
+      },
+      "description": {
+        "en": "Objects to control from Gladys, separated by commas: plate.object:type:name. Types: button, switch, slider, text. Example: plate01.p1b2:switch:Living room light, plate01.p1b3:button:Good night",
+        "fr": "Objets à piloter depuis Gladys, séparés par des virgules : écran.objet:type:nom. Types : button, switch, slider, text. Exemple : plate01.p1b2:switch:Lampe du salon, plate01.p1b3:button:Bonne nuit",
+        "de": "Objekte, die Gladys steuert, durch Kommas getrennt: display.objekt:typ:name. Typen: button, switch, slider, text. Beispiel: plate01.p1b2:switch:Wohnzimmerlampe, plate01.p1b3:button:Gute Nacht",
+        "es": "Objetos que controla Gladys, separados por comas: pantalla.objeto:tipo:nombre. Tipos: button, switch, slider, text. Ejemplo: plate01.p1b2:switch:Luz del salón, plate01.p1b3:button:Buenas noches"
+      },
+      "placeholder": {
+        "en": "plate01.p1b2:switch:Living room light",
+        "fr": "plate01.p1b2:switch:Lampe du salon",
+        "de": "plate01.p1b2:switch:Wohnzimmerlampe",
+        "es": "plate01.p1b2:switch:Luz del salón"
+      },
+      "required": false
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 20
+    },
+    {
+      "key": "discover_plates",
+      "label": {
+        "en": "Search for plates",
+        "fr": "Rechercher les écrans",
+        "de": "Displays suchen",
+        "es": "Buscar pantallas"
+      },
+      "timeout_seconds": 15
+    },
+    {
+      "key": "identify",
+      "label": {
+        "en": "Identify a plate",
+        "fr": "Identifier un écran",
+        "de": "Display identifizieren",
+        "es": "Identificar una pantalla"
+      },
+      "timeout_seconds": 15,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Plate",
+            "fr": "Écran",
+            "de": "Display",
+            "es": "Pantalla"
+          },
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "add_object",
+      "label": {
+        "en": "Add an object",
+        "fr": "Ajouter un objet",
+        "de": "Objekt hinzufügen",
+        "es": "Añadir un objeto"
+      },
+      "fields": [
+        {
+          "key": "plate",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Plate",
+            "fr": "Écran",
+            "de": "Display",
+            "es": "Pantalla"
+          },
+          "required": true
+        },
+        {
+          "key": "object",
+          "type": "string",
+          "label": {
+            "en": "Object (page and id)",
+            "fr": "Objet (page et id)",
+            "de": "Objekt (Seite und ID)",
+            "es": "Objeto (página e id)"
+          },
+          "placeholder": {
+            "en": "e.g. p1b2",
+            "fr": "ex. p1b2",
+            "de": "z. B. p1b2",
+            "es": "p. ej. p1b2"
+          },
+          "required": true
+        },
+        {
+          "key": "type",
+          "type": "select",
+          "label": {
+            "en": "Type",
+            "fr": "Type",
+            "de": "Typ",
+            "es": "Tipo"
+          },
+          "required": true,
+          "options": [
+            {
+              "value": "button",
+              "label": {
+                "en": "Button (click, long press)",
+                "fr": "Bouton (clic, appui long)",
+                "de": "Taste (Klick, langer Druck)",
+                "es": "Botón (clic, pulsación larga)"
+              }
+            },
+            {
+              "value": "switch",
+              "label": {
+                "en": "Switch (on/off)",
+                "fr": "Interrupteur (marche/arrêt)",
+                "de": "Schalter (an/aus)",
+                "es": "Interruptor (encendido/apagado)"
+              }
+            },
+            {
+              "value": "slider",
+              "label": {
+                "en": "Slider (0-100)",
+                "fr": "Curseur (0-100)",
+                "de": "Schieberegler (0-100)",
+                "es": "Deslizador (0-100)"
+              }
+            },
+            {
+              "value": "text",
+              "label": {
+                "en": "Text written by Gladys",
+                "fr": "Texte écrit par Gladys",
+                "de": "Von Gladys geschriebener Text",
+                "es": "Texto escrito por Gladys"
+              }
+            }
+          ]
+        },
+        {
+          "key": "name",
+          "type": "string",
+          "label": {
+            "en": "Name in Gladys",
+            "fr": "Nom dans Gladys",
+            "de": "Name in Gladys",
+            "es": "Nombre en Gladys"
+          },
+          "required": false
+        }
+      ]
+    },
+    {
+      "key": "list_objects",
+      "label": {
+        "en": "List the objects touched",
+        "fr": "Lister les objets touchés",
+        "de": "Berührte Objekte auflisten",
+        "es": "Listar los objetos tocados"
+      }
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "object_event",
+      "label": {
+        "en": "openHASP object touched",
+        "fr": "Objet openHASP touché",
+        "de": "openHASP-Objekt berührt",
+        "es": "Objeto openHASP tocado"
+      },
+      "description": {
+        "en": "A button, switch or slider of a plate was touched.",
+        "fr": "Un bouton, interrupteur ou curseur d'un écran a été touché.",
+        "de": "Eine Taste, ein Schalter oder Schieberegler eines Displays wurde berührt.",
+        "es": "Se ha tocado un botón, interruptor o deslizador de una pantalla."
+      },
+      "fields": [
+        {
+          "key": "plate",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Plate",
+            "fr": "Écran",
+            "de": "Display",
+            "es": "Pantalla"
+          }
+        },
+        {
+          "key": "object",
+          "type": "string",
+          "label": {
+            "en": "Object (e.g. p1b2)",
+            "fr": "Objet (ex. p1b2)",
+            "de": "Objekt (z. B. p1b2)",
+            "es": "Objeto (p. ej. p1b2)"
+          }
+        },
+        {
+          "key": "event",
+          "type": "multi_select",
+          "label": {
+            "en": "Touch",
+            "fr": "Appui",
+            "de": "Berührung",
+            "es": "Toque"
+          },
+          "options": [
+            {
+              "value": "down",
+              "label": {
+                "en": "Pressed",
+                "fr": "Appuyé",
+                "de": "Gedrückt",
+                "es": "Pulsado"
+              }
+            },
+            {
+              "value": "up",
+              "label": {
+                "en": "Short press released",
+                "fr": "Appui court relâché",
+                "de": "Kurzer Druck losgelassen",
+                "es": "Pulsación corta soltada"
+              }
+            },
+            {
+              "value": "long",
+              "label": {
+                "en": "Long press",
+                "fr": "Appui long",
+                "de": "Langer Druck",
+                "es": "Pulsación larga"
+              }
+            },
+            {
+              "value": "release",
+              "label": {
+                "en": "Long press released",
+                "fr": "Appui long relâché",
+                "de": "Langer Druck losgelassen",
+                "es": "Pulsación larga soltada"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "object",
+          "type": "string",
+          "label": {
+            "en": "Object",
+            "fr": "Objet",
+            "de": "Objekt",
+            "es": "Objeto"
+          }
+        },
+        {
+          "key": "event",
+          "type": "string",
+          "label": {
+            "en": "Touch",
+            "fr": "Appui",
+            "de": "Berührung",
+            "es": "Toque"
+          }
+        },
+        {
+          "key": "value",
+          "type": "number",
+          "label": {
+            "en": "Value",
+            "fr": "Valeur",
+            "de": "Wert",
+            "es": "Valor"
+          }
+        },
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Text",
+            "fr": "Texte",
+            "de": "Text",
+            "es": "Texto"
+          }
+        }
+      ]
+    },
+    {
+      "key": "plate_status",
+      "label": {
+        "en": "openHASP plate online or offline",
+        "fr": "Écran openHASP en ligne ou hors ligne",
+        "de": "openHASP-Display online oder offline",
+        "es": "Pantalla openHASP en línea o sin conexión"
+      },
+      "description": {
+        "en": "A plate connected to or left the MQTT broker.",
+        "fr": "Un écran s'est connecté au broker MQTT ou l'a quitté.",
+        "de": "Ein Display hat sich mit dem MQTT-Broker verbunden oder ihn verlassen.",
+        "es": "Una pantalla se ha conectado al broker MQTT o lo ha dejado."
+      },
+      "fields": [
+        {
+          "key": "plate",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Plate",
+            "fr": "Écran",
+            "de": "Display",
+            "es": "Pantalla"
+          }
+        },
+        {
+          "key": "status",
+          "type": "multi_select",
+          "label": {
+            "en": "Status",
+            "fr": "État",
+            "de": "Status",
+            "es": "Estado"
+          },
+          "options": [
+            {
+              "value": "online",
+              "label": {
+                "en": "Online",
+                "fr": "En ligne",
+                "de": "Online",
+                "es": "En línea"
+              }
+            },
+            {
+              "value": "offline",
+              "label": {
+                "en": "Offline",
+                "fr": "Hors ligne",
+                "de": "Offline",
+                "es": "Sin conexión"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "status",
+          "type": "string",
+          "label": {
+            "en": "Status",
+            "fr": "État",
+            "de": "Status",
+            "es": "Estado"
+          }
+        }
+      ]
+    },
+    {
+      "key": "page_changed",
+      "label": {
+        "en": "openHASP page changed",
+        "fr": "Page openHASP changée",
+        "de": "openHASP-Seite gewechselt",
+        "es": "Página openHASP cambiada"
+      },
+      "description": {
+        "en": "A plate now shows another page.",
+        "fr": "Un écran affiche une autre page.",
+        "de": "Ein Display zeigt jetzt eine andere Seite.",
+        "es": "Una pantalla muestra ahora otra página."
+      },
+      "fields": [
+        {
+          "key": "plate",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Plate",
+            "fr": "Écran",
+            "de": "Display",
+            "es": "Pantalla"
+          }
+        },
+        {
+          "key": "page",
+          "type": "number",
+          "label": {
+            "en": "Page",
+            "fr": "Page",
+            "de": "Seite",
+            "es": "Página"
+          },
+          "min": 0,
+          "max": 12
+        }
+      ],
+      "variables": [
+        {
+          "key": "page",
+          "type": "number",
+          "label": {
+            "en": "Page",
+            "fr": "Page",
+            "de": "Seite",
+            "es": "Página"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "show_page",
+      "label": {
+        "en": "Show an openHASP page",
+        "fr": "Afficher une page openHASP",
+        "de": "openHASP-Seite anzeigen",
+        "es": "Mostrar una página openHASP"
+      },
+      "timeout_seconds": 10,
+      "fields": [
+        {
+          "key": "plate",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Plate",
+            "fr": "Écran",
+            "de": "Display",
+            "es": "Pantalla"
+          },
+          "required": true
+        },
+        {
+          "key": "page",
+          "type": "number",
+          "label": {
+            "en": "Page",
+            "fr": "Page",
+            "de": "Seite",
+            "es": "Página"
+          },
+          "required": true,
+          "default": 1,
+          "min": 1,
+          "max": 12
+        }
+      ],
+      "outputs": [
+        {
+          "key": "sent",
+          "type": "boolean",
+          "label": {
+            "en": "Order sent",
+            "fr": "Ordre envoyé",
+            "de": "Befehl gesendet",
+            "es": "Orden enviada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "set_object_text",
+      "label": {
+        "en": "Write on an openHASP object",
+        "fr": "Écrire sur un objet openHASP",
+        "de": "Auf ein openHASP-Objekt schreiben",
+        "es": "Escribir en un objeto openHASP"
+      },
+      "description": {
+        "en": "Change the text of a label or a button. Scene variables work.",
+        "fr": "Change le texte d'une étiquette ou d'un bouton. Les variables de scène marchent.",
+        "de": "Ändert den Text eines Labels oder einer Taste. Szenenvariablen funktionieren.",
+        "es": "Cambia el texto de una etiqueta o un botón. Las variables de escena funcionan."
+      },
+      "timeout_seconds": 10,
+      "fields": [
+        {
+          "key": "plate",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Plate",
+            "fr": "Écran",
+            "de": "Display",
+            "es": "Pantalla"
+          },
+          "required": true
+        },
+        {
+          "key": "object",
+          "type": "string",
+          "label": {
+            "en": "Object (e.g. p1b2)",
+            "fr": "Objet (ex. p1b2)",
+            "de": "Objekt (z. B. p1b2)",
+            "es": "Objeto (p. ej. p1b2)"
+          },
+          "required": true
+        },
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Text",
+            "fr": "Texte",
+            "de": "Text",
+            "es": "Texto"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "sent",
+          "type": "boolean",
+          "label": {
+            "en": "Order sent",
+            "fr": "Ordre envoyé",
+            "de": "Befehl gesendet",
+            "es": "Orden enviada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "set_backlight",
+      "label": {
+        "en": "Set an openHASP backlight",
+        "fr": "Régler le rétroéclairage openHASP",
+        "de": "openHASP-Beleuchtung einstellen",
+        "es": "Ajustar la retroiluminación openHASP"
+      },
+      "timeout_seconds": 10,
+      "fields": [
+        {
+          "key": "plate",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Plate",
+            "fr": "Écran",
+            "de": "Display",
+            "es": "Pantalla"
+          },
+          "required": true
+        },
+        {
+          "key": "state",
+          "type": "select",
+          "label": {
+            "en": "Backlight",
+            "fr": "Rétroéclairage",
+            "de": "Beleuchtung",
+            "es": "Retroiluminación"
+          },
+          "required": true,
+          "default": "on",
+          "options": [
+            {
+              "value": "on",
+              "label": {
+                "en": "On",
+                "fr": "Allumé",
+                "de": "An",
+                "es": "Encendida"
+              }
+            },
+            {
+              "value": "off",
+              "label": {
+                "en": "Off",
+                "fr": "Éteint",
+                "de": "Aus",
+                "es": "Apagada"
+              }
+            }
+          ]
+        },
+        {
+          "key": "brightness",
+          "type": "number",
+          "label": {
+            "en": "Brightness (1-255)",
+            "fr": "Luminosité (1-255)",
+            "de": "Helligkeit (1-255)",
+            "es": "Brillo (1-255)"
+          },
+          "required": false,
+          "min": 1,
+          "max": 255
+        }
+      ],
+      "outputs": [
+        {
+          "key": "sent",
+          "type": "boolean",
+          "label": {
+            "en": "Order sent",
+            "fr": "Ordre envoyé",
+            "de": "Befehl gesendet",
+            "es": "Orden enviada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "wake_screen",
+      "label": {
+        "en": "Wake an openHASP screen",
+        "fr": "Réveiller un écran openHASP",
+        "de": "openHASP-Display aufwecken",
+        "es": "Despertar una pantalla openHASP"
+      },
+      "description": {
+        "en": "Like a touch: resets the idle timer (e.g. on motion).",
+        "fr": "Comme un toucher : relance la mise en veille (ex. sur détection de mouvement).",
+        "de": "Wie eine Berührung: setzt den Ruhe-Timer zurück (z. B. bei Bewegung).",
+        "es": "Como un toque: reinicia el temporizador de reposo (p. ej. al detectar movimiento)."
+      },
+      "timeout_seconds": 10,
+      "fields": [
+        {
+          "key": "plate",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Plate",
+            "fr": "Écran",
+            "de": "Display",
+            "es": "Pantalla"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "sent",
+          "type": "boolean",
+          "label": {
+            "en": "Order sent",
+            "fr": "Ordre envoyé",
+            "de": "Befehl gesendet",
+            "es": "Orden enviada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "send_command",
+      "label": {
+        "en": "Send an openHASP command",
+        "fr": "Envoyer une commande openHASP",
+        "de": "openHASP-Befehl senden",
+        "es": "Enviar un comando openHASP"
+      },
+      "description": {
+        "en": "Any openHASP command, e.g. p1b2.bg_color=red or moodlight on.",
+        "fr": "N'importe quelle commande openHASP, ex. p1b2.bg_color=red ou moodlight on.",
+        "de": "Ein beliebiger openHASP-Befehl, z. B. p1b2.bg_color=red oder moodlight on.",
+        "es": "Cualquier comando openHASP, p. ej. p1b2.bg_color=red o moodlight on."
+      },
+      "timeout_seconds": 10,
+      "fields": [
+        {
+          "key": "plate",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Plate",
+            "fr": "Écran",
+            "de": "Display",
+            "es": "Pantalla"
+          },
+          "required": true
+        },
+        {
+          "key": "command",
+          "type": "string",
+          "label": {
+            "en": "Command",
+            "fr": "Commande",
+            "de": "Befehl",
+            "es": "Comando"
+          },
+          "placeholder": {
+            "en": "e.g. p1b2.bg_color=red",
+            "fr": "ex. p1b2.bg_color=red",
+            "de": "z. B. p1b2.bg_color=red",
+            "es": "p. ej. p1b2.bg_color=red"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "sent",
+          "type": "boolean",
+          "label": {
+            "en": "Order sent",
+            "fr": "Ordre envoyé",
+            "de": "Befehl gesendet",
+            "es": "Orden enviada"
+          }
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "key": "plates",
+      "label": {
+        "en": "openHASP plates",
+        "fr": "Écrans openHASP",
+        "de": "openHASP-Displays",
+        "es": "Pantallas openHASP"
+      },
+      "description": {
+        "en": "Which plates are online, the page they show; wake them up.",
+        "fr": "Les écrans en ligne et la page affichée ; réveillez-les.",
+        "de": "Welche Displays online sind und welche Seite sie zeigen; aufwecken.",
+        "es": "Qué pantallas están en línea y qué página muestran; despiértelas."
+      },
+      "icon": "monitor",
+      "action_timeout_seconds": 15
+    }
+  ]
+}
