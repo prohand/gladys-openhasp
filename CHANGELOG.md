@@ -6,6 +6,8 @@ All notable changes to this integration are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.0.1] - 2026-11-22
+
 ### Added
 
 - First version of the openHASP integration for Gladys Assistant (Gladys 5.3+), over MQTT, local
@@ -21,4 +23,5 @@ All notable changes to this integration are documented here. The format follows
 - Configuration actions: **Test the connection**, **Search for plates**, **Identify a plate**.
 - English, French, German and Spanish texts and documentation.
 
-[Unreleased]: https://github.com/prohand/gladys-openhasp/commits/main
+[Unreleased]: https://github.com/prohand/gladys-openhasp/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/prohand/gladys-openhasp/releases/tag/v0.0.1

@@ -1,6 +1,6 @@
 {
   "name": "gladys-openhasp",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "description": "Gladys Assistant external integration for openHASP touch screens (plates), over MQTT.",
   "type": "module",
